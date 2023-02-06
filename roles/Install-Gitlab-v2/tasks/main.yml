@@ -1,0 +1,43 @@
+---
+- name: Create Gitlab Directories
+  file:
+    path: "{{ item }}"
+    recurse: yes
+    state: directory
+  loop:
+    - "{{ gitlab_folders }}/config/ssl"
+    - "{{ gitlab_folders }}/logs"
+    - "{{ gitlab_folders }}/data"
+
+- name: Create dhparam.pem
+  shell: openssl dhparam -out {{ gitlab_folders }}/config/ssl/dhparams.pem 2048
+
+- name: deploy certificates
+  template: 
+    src: "{{ item }}" 
+    dest: "{{ gitlab_folders }}/config/ssl" 
+    owner: root 
+    group: root 
+    mode: 0644
+  loop:
+    - "gitlab.pem"
+    - "gitlab.key"
+
+- name: create path gitlab HOME
+  shell: |
+    cd {{ gitlab_folders }}
+    echo "GITLAB_HOME=/srv/gitlab" > .env
+    
+- name: deploy docker compose
+  template: 
+    src: docker-compose.yml 
+    dest: "{{ gitlab_folders }}"
+    owner: root 
+    group: root 
+    mode: 0644    
+
+- name: deploy Docker Compose stack
+  docker_compose:
+    project_src: "{{ gitlab_folders }}"
+    files:
+    - docker-compose.yml

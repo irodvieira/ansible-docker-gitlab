@@ -1,0 +1,8 @@
+- name: Default Playbook - Starting Deploy
+  hosts: all 
+  roles: 
+    - Fdisk
+    - LVM-Create
+    - Install-Docker
+    - Install-Gitlab
+    - Install-Gitlab-v2

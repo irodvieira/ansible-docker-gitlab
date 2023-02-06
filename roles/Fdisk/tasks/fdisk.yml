@@ -1,0 +1,6 @@
+- name: Create a new primary partition for LVM
+  parted:
+    device: /dev/sdb
+    number: 2
+    flags: [ lvm ]
+    state: present
